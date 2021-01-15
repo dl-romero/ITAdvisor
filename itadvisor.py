@@ -46,6 +46,29 @@ class ITAdvisor:
             '''init'''
             self.hostmame = hostname
             self.http_auth = http_auth
+            
+        def assets(self, customer_id = None, recursive = None):
+            '''
+            Get the top level assets a user has access to. 
+            For a regular EcoStruxure IT Advisor user this will be the locations, floor plans and rooms he has access to. 
+            For a colocation customer this will be the room, cage, or rack he has rented, though we do not support returning racks from a storage room.
+            '''
+            url = "https://" +str(self.hostmame)+ "/api/current/assets?"
+            if customer_id != None:
+                url += "customer-id=" + str(customer_id) 
+            if recursive != None: # Recursive must be BOOL.
+                if customer_id != None:
+                    url += "&"
+                url += "recursive=" + str(recursive)
+            payload={}
+            headers = {}
+            try:
+                response = requests.request("GET", url, headers=headers, data=payload, verify=False, auth=self.http_auth)
+                if response.status_code != 200:
+                    return response.status_code
+                return response.text
+            except requests.exceptions.ConnectionError:
+                return '{\'status\':\'0\', \'description\':\'unreachable\'}'
 
         def search(self, query):
             '''
@@ -54,7 +77,6 @@ class ITAdvisor:
             It is an indexed search, limited to 50 items. 
             It uses cashed data and may not represent the most recent changes in your datacenter
             '''
-            requests.packages.urllib3.disable_warnings()
             url = "https://" +str(self.hostmame)+ "/api/current/assets/search?q=" + str(query)
             payload={}
             headers = {}
@@ -68,8 +90,35 @@ class ITAdvisor:
 
         def types(self):
             '''The types describe how the assets are presented in the EcoStruxure IT Advisor client.'''
-            requests.packages.urllib3.disable_warnings()
             url = "https://" +str(self.hostmame)+ "/api/current/assets/types"
+            payload={}
+            headers = {}
+            try:
+                response = requests.request("GET", url, headers=headers, data=payload, verify=False, auth=self.http_auth)
+                if response.status_code != 200:
+                    return response.status_code
+                return response.text
+            except requests.exceptions.ConnectionError:
+                return '{\'status\':\'0\', \'description\':\'unreachable\'}'
+            
+        def delete_asset(self, asset_id):
+            '''Delete asset with the given ID.'''
+            url = "https://" +str(self.hostmame)+ "/api/current/assets/" + str(asset_id)
+            payload={}
+            headers = {}
+            try:
+                response = requests.request("DELETE", url, headers=headers, data=payload, verify=False, auth=self.http_auth)
+                if response.status_code != 200 or response.status_code != 204:
+                    return response.status_code
+                return response.text
+            except requests.exceptions.ConnectionError:
+                return '{\'status\':\'0\', \'description\':\'unreachable\'}'
+            
+        def get_asset(self, asset_id):
+            '''
+            Gets asset with given ID. Includes all params [children, custom_properties, device_links, navigation_path]
+            '''
+            url = "https://" +str(self.hostmame)+ "/api/current/assets/" + str(asset_id) + ")?include=children&include=custom_properties&include=device_links&include=navigation_path
             payload={}
             headers = {}
             try:
@@ -118,7 +167,6 @@ class ITAdvisor:
             
         def get_certificates(self):
             '''Returns all installed certificates.'''
-            requests.packages.urllib3.disable_warnings()
             url = "https://" +str(self.hostmame)+ "/api/current/certificates"
             payload={}
             headers = {}
@@ -132,7 +180,6 @@ class ITAdvisor:
             
         def post_certificate(self, certificate):
             '''Installs Certificate (Must be Base64).'''
-            requests.packages.urllib3.disable_warnings()
             url = "https://" +str(self.hostmame)+ "/api/current/certificates"
             payload={'-d': str(certificate)}
             files=[]
@@ -147,7 +194,6 @@ class ITAdvisor:
             
         def delete_certificate(self, certificate):
             '''Deletes certiciate (Must be SHA-256 Fingerprint).'''
-            requests.packages.urllib3.disable_warnings()
             url = "https://" +str(self.hostmame)+ "/api/current/certificates/" + str(certificate)
             payload={}
             headers = {}
@@ -203,7 +249,6 @@ class ITAdvisor:
             
         def customer_count(self):
             '''Get number of customers in child locations and rooms of specified root location matching the given filtering options.'''
-            requests.packages.urllib3.disable_warnings()
             url = "https://" +str(self.hostmame)+ "/api/current/genomes"
             payload={}
             headers = {}
@@ -239,7 +284,6 @@ class ITAdvisor:
             
         def all_genomes(self):
             '''Returns all Genomes in the System and User Genome Libraries.'''
-            requests.packages.urllib3.disable_warnings()
             url = "https://" +str(self.hostmame)+ "/api/current/genomes"
             payload={}
             headers = {}
@@ -253,7 +297,6 @@ class ITAdvisor:
             
         def genome_by_id(self, genome_id):
             '''Returns the single Genome referenced by ID from the System and User Genome Libraries.'''
-            requests.packages.urllib3.disable_warnings()
             url = "https://" +str(self.hostmame)+ "/api/current/genomes/" + str(genome_id)
             payload={}
             headers = {}
@@ -282,7 +325,6 @@ class ITAdvisor:
             
         def get_licenses(self):
             '''Returns all installed licenses.'''
-            requests.packages.urllib3.disable_warnings()
             url = "https://" +str(self.hostmame)+ "/api/current//licenses"
             payload={}
             headers = {}
@@ -296,7 +338,6 @@ class ITAdvisor:
             
         def post_license(self, license_key):
             '''Adds license key.'''
-            requests.packages.urllib3.disable_warnings()
             url = "https://" +str(self.hostmame)+ "/api/current/licenses"
             payload={'-d': str(license_key)}
             files=[]
@@ -311,7 +352,6 @@ class ITAdvisor:
             
         def delete_license(self, license_key):
             '''Deletes license key.'''
-            requests.packages.urllib3.disable_warnings()
             url = "https://" +str(self.hostmame)+ "/api/current/licenses/" + str(license_key)
             payload={}
             headers = {}
