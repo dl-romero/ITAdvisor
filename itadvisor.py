@@ -110,10 +110,54 @@ class ITAdvisor:
         
     class Certificates:
         '''Certificate Library'''
+        # Complete
         def __init__(self, hostname, http_auth):
             '''init'''
             self.hostmame = hostname
             self.http_auth = http_auth
+            
+        def get_certificates(self):
+            '''Returns all installed certificates.'''
+            requests.packages.urllib3.disable_warnings()
+            url = "https://" +str(self.hostmame)+ "/api/current/certificates"
+            payload={}
+            headers = {}
+            try:
+                response = requests.request("GET", url, headers=headers, data=payload, verify=False, auth=self.http_auth)
+                if response.status_code != 200:
+                    return response.status_code
+                return response.text
+            except requests.exceptions.ConnectionError:
+                return '{\'status\':\'0\', \'description\':\'unreachable\'}'
+            
+        def post_certificate(self, certificate):
+            '''Installs Certificate (Must be Base64).'''
+            requests.packages.urllib3.disable_warnings()
+            url = "https://" +str(self.hostmame)+ "/api/current/certificates"
+            payload={'-d': str(certificate)}
+            files=[]
+            headers = {}
+            try:
+                response = requests.request("POST", url, headers=headers, data=payload, files=files, verify=False, auth=self.http_auth)
+                if response.status_code != 200:
+                    return response.status_code
+                return response.text
+            except requests.exceptions.ConnectionError:
+                return '{\'status\':\'0\', \'description\':\'unreachable\'}'
+            
+        def delete_certificate(self, certificate):
+            '''Deletes certiciate (Must be SHA-256 Fingerprint).'''
+            requests.packages.urllib3.disable_warnings()
+            url = "https://" +str(self.hostmame)+ "/api/current/certificates/" + str(certificate)
+            payload={}
+            headers = {}
+            try:
+                response = requests.request("DELETE", url, headers=headers, data=payload, verify=False, auth=self.http_auth)
+                if response.status_code != 200 or response.status_code != 204:
+                    return response.status_code
+                return response.text
+            except requests.exceptions.ConnectionError:
+                return '{\'status\':\'0\', \'description\':\'unreachable\'}'
         
     class ChangeRequest:
         '''Change Request Library'''
@@ -156,6 +200,20 @@ class ITAdvisor:
             '''init'''
             self.hostmame = hostname
             self.http_auth = http_auth
+            
+        def customer_count(self):
+            '''Get number of customers in child locations and rooms of specified root location matching the given filtering options.'''
+            requests.packages.urllib3.disable_warnings()
+            url = "https://" +str(self.hostmame)+ "/api/current/genomes"
+            payload={}
+            headers = {}
+            try:
+                response = requests.request("GET", url, headers=headers, data=payload, verify=False, auth=self.http_auth)
+                if response.status_code != 200:
+                    return response.status_code
+                return response.text
+            except requests.exceptions.ConnectionError:
+                return '{\'status\':\'0\', \'description\':\'unreachable\'}'
         
     class EquipmentBrowser:
         '''Equipment Browser Library'''
@@ -237,7 +295,7 @@ class ITAdvisor:
                 return '{\'status\':\'0\', \'description\':\'unreachable\'}'
             
         def post_license(self, license_key):
-            '''Returns all installed licenses.'''
+            '''Adds license key.'''
             requests.packages.urllib3.disable_warnings()
             url = "https://" +str(self.hostmame)+ "/api/current/licenses"
             payload={'-d': str(license_key)}
@@ -252,7 +310,7 @@ class ITAdvisor:
                 return '{\'status\':\'0\', \'description\':\'unreachable\'}'
             
         def delete_license(self, license_key):
-            '''Returns all installed licenses.'''
+            '''Deletes license key.'''
             requests.packages.urllib3.disable_warnings()
             url = "https://" +str(self.hostmame)+ "/api/current/licenses/" + str(license_key)
             payload={}
@@ -307,7 +365,7 @@ class ITAdvisor:
             self.hostmame = hostname
             self.http_auth = http_auth
         
-    class SVG:
+    class SVG: # Pending Schneider Electric API Development.
         '''SVG Library'''
         def __init__(self, hostname, http_auth):
             '''init'''
