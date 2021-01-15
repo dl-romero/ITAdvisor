@@ -9,6 +9,7 @@ class ITAdvisor:
 
     def __init__(self, hostname, username, password):
         '''IT Advisor Complete REST API Library'''
+        
         self.hostmame = hostname
         self.http_auth = HTTPBasicAuth(username, password)
         self.Assets = self.Assets(hostname = self.hostmame, http_auth = self.http_auth)
@@ -42,6 +43,7 @@ class ITAdvisor:
 
     class Assets:
         '''Asset Library'''
+        
         def __init__(self, hostname, http_auth):
             '''init'''
             self.hostmame = hostname
@@ -53,6 +55,7 @@ class ITAdvisor:
             For a regular EcoStruxure IT Advisor user this will be the locations, floor plans and rooms he has access to. 
             For a colocation customer this will be the room, cage, or rack he has rented, though we do not support returning racks from a storage room.
             '''
+            
             url = "https://" +str(self.hostmame)+ "/api/current/assets?"
             if customer_id != None:
                 url += "customer-id=" + str(customer_id) 
@@ -77,6 +80,7 @@ class ITAdvisor:
             It is an indexed search, limited to 50 items. 
             It uses cashed data and may not represent the most recent changes in your datacenter
             '''
+            
             url = "https://" +str(self.hostmame)+ "/api/current/assets/search?q=" + str(query)
             payload={}
             headers = {}
@@ -90,6 +94,7 @@ class ITAdvisor:
 
         def types(self):
             '''The types describe how the assets are presented in the EcoStruxure IT Advisor client.'''
+            
             url = "https://" +str(self.hostmame)+ "/api/current/assets/types"
             payload={}
             headers = {}
@@ -101,8 +106,15 @@ class ITAdvisor:
             except requests.exceptions.ConnectionError:
                 return '{\'status\':\'0\', \'description\':\'unreachable\'}'
             
+        def post_visuals(self):
+            return 'Pending Schneider Electric API Development.'
+        
+        def get_visuals(self):
+            return 'Pending Schneider Electric API Development.'
+            
         def delete_asset(self, asset_id):
             '''Delete asset with the given ID.'''
+
             url = "https://" +str(self.hostmame)+ "/api/current/assets/" + str(asset_id)
             payload={}
             headers = {}
@@ -113,12 +125,13 @@ class ITAdvisor:
                 return response.text
             except requests.exceptions.ConnectionError:
                 return '{\'status\':\'0\', \'description\':\'unreachable\'}'
-            
+
         def get_asset(self, asset_id):
             '''
             Gets asset with given ID. Includes all params [children, custom_properties, device_links, navigation_path]
             '''
-            url = "https://" +str(self.hostmame)+ "/api/current/assets/" + str(asset_id) + ")?include=children&include=custom_properties&include=device_links&include=navigation_path
+
+            url = "https://" +str(self.hostmame)+ "/api/current/assets/" + str(asset_id) + "?include=children&include=custom_properties&include=device_links&include=navigation_path"
             payload={}
             headers = {}
             try:
@@ -128,6 +141,49 @@ class ITAdvisor:
                 return response.text
             except requests.exceptions.ConnectionError:
                 return '{\'status\':\'0\', \'description\':\'unreachable\'}'
+                
+        def patch_asset(self): # PENDING
+            '''Partial update of asset with the given ID'''
+            return ''
+        def post_asset_child(self): # PENDING
+            '''Create a new asset inside the asset with the given specification'''
+            return ''
+            
+        def delete_custom_property(self): # PENDING
+            '''Removes the specified custom property from the asset.'''
+            return ''
+            
+        def put_custom_property(self): # PENDING
+            '''Sets the value of the specified custom property on the asset.'''
+            return ''
+            
+        def delete_customer_relation(self, asset_id): # PENDING
+            '''Set the given asset to have no customer relations.'''
+            return ''
+            
+        def get_customer_relation(self, asset_id): # PENDING
+            '''Gets the current customer relation on the given asset.'''
+            return ''
+            
+        def put_customer_relation(self, asset_id, customer_relation): # PENDING
+            '''Set the customer relation for the given asset, to the given customer relation.'''
+            return ''
+            
+        def get_asset_associated_devices(self, asset_id): # PENDING
+            '''Get all devices associated with the asset with the asset-id.'''
+            return ''
+            
+        def get_asset_metrics(self, asset_id): # PENDING
+            '''Get all Asset Values asked for in the include query param for the asset with the asset-id.'''
+            return ''
+            
+        def delete_asset_visuals(self):
+            '''Delete asset visual(s) of asset with the given ID.'''
+            return 'Pending Schneider Electric API Development.'
+            
+        def put_asset_visuals(self):
+            '''Sets a visual of the given type on an asset.'''
+            return 'Pending Schneider Electric API Development.'
         
     class AuditTrail:
         '''Audit Trail Library'''
@@ -439,6 +495,10 @@ class ITAdvisor:
             '''init'''
             self.hostmame = hostname
             self.http_auth = http_auth
+            
+    def info():
+        information = ("""Author: David Romero\nWebsite: https://dromero.dev\n\nITAdvisor API Version: 8.1""")
+        print(information)
 
 if __name__ == "__main__":
-    print("Author: David Romero")
+    ITAdvisor.info()
